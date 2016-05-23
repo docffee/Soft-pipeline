@@ -146,7 +146,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="3dlib.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="math.cpp" />
+    <ClCompile Include="rasterization.cpp" />
+    <ClCompile Include="setting.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="3dlib.h" />
+    <ClInclude Include="math.h" />
+    <ClInclude Include="rasterization.h" />
+    <ClInclude Include="setting.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
