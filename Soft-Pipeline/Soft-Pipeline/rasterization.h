@@ -2,6 +2,7 @@
 
 #include"setting.h"
 #include<math.h>
+#include<Windows.h>
 
 namespace rasterzization
 {

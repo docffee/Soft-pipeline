@@ -10,6 +10,7 @@
 #include"3dlib.h"
 #include"setting.h"
 #include"rasterization.h"
+#include"mesh.h"
 
 #pragma warning(disable : 4996)
 #pragma comment( lib,"winmm.lib" )
@@ -32,12 +33,16 @@ DWORD g_tPre=0,g_tNow=0;
 int g_iNum = 0;
 HFONT g_hFont;
 
+Mesh *g_mesh = NULL;
+Vertex4 vertexbuffer[8];
+
 // 全局变量声明结束 =================================================================
 
 //===============================================================================
 //   函数声明
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 BOOL Program_Init(HWND hwnd);
+VOID Program_Main(HWND hwnd);
 VOID Program_Paint(HWND hwnd);
 BOOL Program_CleanUp(HWND hwnd);
 FLOAT Get_FPS();
@@ -76,15 +81,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return FALSE;
 	}
 
-	//if (AllocConsole())
-	//{
-	//	//MessageBox(hwnd, L"开启控制台成功", L"消息窗口", 0);
-	//	//freopen("CONIN$", "r+t", stdin);
-	//	//freopen_s(&_stream,"CONOUT$", "w+t", stdout);
-	//	freopen("CONOUT$", "w", stdout);
-	//	//printf("hello hplonline!-_-\n");
-	//	//std::cout << "test" << std::endl;
-	//}
+	if (AllocConsole())//启用控制台方便调试
+	{
+		//MessageBox(hwnd, L"开启控制台成功", L"消息窗口", 0);
+		//freopen("CONIN$", "r+t", stdin);
+		//freopen_s(&_stream,"CONOUT$", "w+t", stdout);
+		freopen("CONOUT$", "w", stdout);
+	}
 
 	//消息循环
 	MSG msg = { 0 };
@@ -96,7 +99,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		else {
 			/*g_tNow = GetTickCount();
 			if(g_tNow-g_tPre >= 1/60.0)*/
-				Program_Paint(hwnd);
+			Program_Main(hwnd);
 
 
 		}
@@ -142,57 +145,40 @@ BOOL Program_Init(HWND hwnd)
 
 	
 
-	g_hdc = GetDC(hwnd);
-	g_mdc = CreateCompatibleDC(g_hdc);
-
-	
-	//g_bufdc = CreateCompatibleDC(g_hdc);
-
-	
-	
-
-
-	//GetClientRect(hwnd, &g_rect);
+	g_hdc = GetDC(hwnd);//创建设备
+	g_mdc = CreateCompatibleDC(g_hdc);//创建一个设备缓冲
 
 	HFONT hFont;
 	hFont = CreateFont(20,0,0,0,700,0,0,0,GB2312_CHARSET,0,0,0,0,TEXT("微软雅黑"));
 	SelectObject(g_mdc,hFont);
 	SetBkMode(g_mdc,TRANSPARENT);
 
-	for (int i = 0; i < WINDOW_WIDTH; ++i)
+	/*for (int i = 0; i < WINDOW_WIDTH; ++i)
 		for (int j = 0; j < WINDOW_HEIGHT; ++j)
-			g_framebuffer[i][j] = { 0,0,0 };
+			g_framebuffer[i][j] = { 0,0,0 };*/
 
-	Program_Paint(hwnd);
+
+	//初始化需要显示的物体
+	g_mesh = new Mesh();
+
+	Program_Main(hwnd);
 
 	return TRUE;
 }
 
 VOID Program_Paint(HWND hwnd)
 {
-	//清空像素缓存
-	/*
-	for (int i = 0; i < WINDOW_WIDTH; ++i)
-		for (int j = 0; j < WINDOW_HEIGHT; ++j)
-			g_framebuffer[i][j].setColor(0,0,0);
-	*/
 	//绘图
 	HBITMAP bmp;
 	bmp = CreateCompatibleBitmap(g_hdc, WINDOW_WIDTH, WINDOW_HEIGHT);
 	SelectObject(g_mdc, bmp);
-	
-	
-	/*rasterzization::bresenham_DrawLine(
-		rand()%WINDOW_WIDTH, rand() % WINDOW_WIDTH,
-		rand() % WINDOW_HEIGHT, rand() % WINDOW_HEIGHT,g_mdc);*/
 
-	//绘制到屏幕上
-	/*
-	for (int i = 0; i < WINDOW_WIDTH; ++i)
-		for (int j = 0; j < WINDOW_HEIGHT; ++j)
-			SetPixel(g_mdc, i, j,RGB(g_framebuffer[i][j].r,g_framebuffer[i][j].b, g_framebuffer[i][j].b));
-			//g_framebuffer[i][j].setColor(0, 0, 0);
-	*/
+	/*rasterzization::bresenham_DrawLine(vertexbuffer[0].x,vertexbuffer[0].y,vertexbuffer[3].x,vertexbuffer[3].y, g_mdc);
+	rasterzization::bresenham_DrawLine(vertexbuffer[3].x, vertexbuffer[3].y, vertexbuffer[7].x, vertexbuffer[7].y, g_mdc);
+	rasterzization::bresenham_DrawLine(vertexbuffer[7].x, vertexbuffer[7].y, vertexbuffer[0].x, vertexbuffer[0].y, g_mdc);
+*/
+
+	rasterzization::bresenham_DrawLine(100, 100, 200, 200, g_mdc);
 
 	//绘制文字
 	wchar_t str[100];
@@ -200,12 +186,9 @@ VOID Program_Paint(HWND hwnd)
 	SetTextColor(g_mdc, RGB(10, 10, 255));
 	TextOut(g_mdc, WINDOW_WIDTH - 150, 50, str, wcslen(str));
 
-
 	//交换缓冲区
 	BitBlt(g_hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, g_mdc, 0, 0, SRCCOPY);
 	g_tPre = GetTickCount();
-	//g_iNum++;
-	//g_mdc = NULL;
 	DeleteObject(bmp);
 }
 
@@ -216,6 +199,8 @@ BOOL Program_CleanUp(HWND hwnd)
 	DeleteDC(g_bufdc);
 	DeleteDC(g_mdc);
 	ReleaseDC(hwnd, g_hdc);
+	if (g_mesh != NULL)
+		delete g_mesh;
 	return TRUE;
 }
 
@@ -235,4 +220,43 @@ FLOAT Get_FPS()
 		frameCount = 0;
 	}
 	return fps;
+}
+
+
+VOID Program_Main(HWND hwnd)
+//帧循环
+{
+	//世界变换
+	Matrix44 matWorld,Rx,Ry,Rz;
+	MartrixIdentity(matWorld);
+	MartrixRotationX(Rx, PI*(45.0f / 180.0f));
+	MartrixRotationY(Ry, PI*(45.0f / 180.0f));
+	MartrixRotationZ(Rz, PI*(45.0f / 180.0f));
+	
+	matWorld = matWorld * Rx * Ry * Rz;
+
+	//相机变换
+	Matrix44 matView;
+	Vector3 vEye = { 0.0f,0.0f,-200.0f };
+	Vector3 vAt = { 0.0f,0.0f,0.0f };
+	Vector3 vUp = { 0.0f,1.0f,0.0f };
+	MatrixLookAtLH(matView, vEye, vAt, vUp);
+
+	//透视投影变换
+	Matrix44 matProj;
+	MatrixPerspectiveFovLH(matProj,PI / 4.0f,1.0f,1.0f,1000.0f);
+	
+	Matrix44 transform;
+	transform = matWorld * matView * matProj;
+
+	for (int i = 0; i < 8; ++i)
+		vertexbuffer[i] = g_mesh->vertex[i] * transform;
+
+	/*vertexbuffer[0] = g_mesh->vertex[0] * matWorld * matView * matProj;
+	vertexbuffer[3] = g_mesh->vertex[3] * matWorld * matView * matProj;
+	vertexbuffer[7] = g_mesh->vertex[7] * matWorld * matView * matProj;
+	vertexbuffer[4] = g_mesh->vertex[4] * matWorld * matView * matProj;*/
+	
+
+	Program_Paint(hwnd);//进行绘制
 }

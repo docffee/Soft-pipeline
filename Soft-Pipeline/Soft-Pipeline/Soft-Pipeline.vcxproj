@@ -149,12 +149,14 @@
     <ClCompile Include="3dlib.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="math.cpp" />
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="rasterization.cpp" />
     <ClCompile Include="setting.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3dlib.h" />
     <ClInclude Include="math.h" />
+    <ClInclude Include="mesh.h" />
     <ClInclude Include="rasterization.h" />
     <ClInclude Include="setting.h" />
   </ItemGroup>
