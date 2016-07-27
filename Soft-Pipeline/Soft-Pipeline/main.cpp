@@ -34,7 +34,7 @@ int g_iNum = 0;
 HFONT g_hFont;
 
 Mesh *g_mesh = NULL;
-Vertex4 vertexbuffer[8];
+Vertex4 vertexbuffer[8],vbuffer[8];
 
 // 全局变量声明结束 =================================================================
 
@@ -173,12 +173,20 @@ VOID Program_Paint(HWND hwnd)
 	bmp = CreateCompatibleBitmap(g_hdc, WINDOW_WIDTH, WINDOW_HEIGHT);
 	SelectObject(g_mdc, bmp);
 
+	
 	/*rasterzization::bresenham_DrawLine(vertexbuffer[0].x,vertexbuffer[0].y,vertexbuffer[3].x,vertexbuffer[3].y, g_mdc);
 	rasterzization::bresenham_DrawLine(vertexbuffer[3].x, vertexbuffer[3].y, vertexbuffer[7].x, vertexbuffer[7].y, g_mdc);
 	rasterzization::bresenham_DrawLine(vertexbuffer[7].x, vertexbuffer[7].y, vertexbuffer[0].x, vertexbuffer[0].y, g_mdc);
 */
-
-	rasterzization::bresenham_DrawLine(100, 100, 200, 200, g_mdc);
+	int a, b, c;
+	for (int i = 0; i < 12; ++i) {
+		a = g_mesh->indices[i][0];
+		b = g_mesh->indices[i][1];
+		c = g_mesh->indices[i][2];
+		rasterzization::bresenham_DrawLine(vbuffer[a].x, vbuffer[a].y, vbuffer[b].x, vbuffer[b].y, g_mdc);
+		rasterzization::bresenham_DrawLine(vbuffer[b].x, vbuffer[b].y, vbuffer[c].x, vbuffer[c].y, g_mdc);
+		rasterzization::bresenham_DrawLine(vbuffer[c].x, vbuffer[c].y, vbuffer[a].x, vbuffer[a].y, g_mdc);
+	}
 
 	//绘制文字
 	wchar_t str[100];
@@ -251,6 +259,10 @@ VOID Program_Main(HWND hwnd)
 
 	for (int i = 0; i < 8; ++i)
 		vertexbuffer[i] = g_mesh->vertex[i] * transform;
+
+	//归一化
+	for (int i = 0; i < 8; ++i)
+		Homogenize(WINDOW_WIDTH, WINDOW_HEIGHT, vbuffer[i], vertexbuffer[i]);
 
 	/*vertexbuffer[0] = g_mesh->vertex[0] * matWorld * matView * matProj;
 	vertexbuffer[3] = g_mesh->vertex[3] * matWorld * matView * matProj;

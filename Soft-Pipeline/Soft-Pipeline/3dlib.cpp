@@ -53,3 +53,13 @@ void MatrixPerspectiveFovLH(Matrix44 &matrix, float theta, float aspect, float z
 	matrix.m[2][0] = matrix.m[2][1] =
 	matrix.m[3][0] = matrix.m[3][1] = matrix.m[3][3] = 0.0f;
 }
+
+void Homogenize(float w, float h, Vertex4 &y, Vertex4 &x)
+{
+
+	float rhw = 1.0f / x.w;
+	y.x = (x.x * rhw + 1.0f) * w * 0.5f;
+	y.y = (1.0f - x.y * rhw) * h * 0.5f;
+	y.z = x.z * rhw;
+	y.w = 1.0f;
+}
