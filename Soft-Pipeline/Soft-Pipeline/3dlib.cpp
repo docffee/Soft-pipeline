@@ -1,6 +1,5 @@
+#include"stdafx.h"
 #include"3dlib.h"
-
-
 
 void ColorRgb::setColor(int rr, int gg, int bb)
 {

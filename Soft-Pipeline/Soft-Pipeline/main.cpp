@@ -3,6 +3,7 @@
 //2016Äê5ÔÂ by moonightlei
 //
 
+#include"stdafx.h"
 #include<Windows.h>
 #include<iostream>
 #include<stdlib.h>
@@ -11,6 +12,7 @@
 #include"setting.h"
 #include"rasterization.h"
 #include"mesh.h"
+
 
 #pragma warning(disable : 4996)
 #pragma comment( lib,"winmm.lib" )

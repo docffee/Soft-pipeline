@@ -1,4 +1,4 @@
-
+#include"stdafx.h"
 #include"rasterization.h"
 #include<Windows.h>
 
